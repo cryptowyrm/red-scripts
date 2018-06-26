@@ -31,13 +31,13 @@ gem: make object! [
         unless falling? [
             falling?: true
             offset: 50
-            change at gems ((position/y * 10 + position/x + 10) + 1) self
+            change at gems ((position/y * COLS + position/x + COLS) + 1) self
 
             ; create new gem
             either position/y = 0 [
-                change at gems ((position/y * 10 + position/x) + 1) (random-gem/falling position/x 0)
+                change at gems ((position/y * COLS + position/x) + 1) (random-gem/falling position/x 0)
             ] [
-                change at gems ((position/y * 10 + position/x) + 1) none
+                change at gems ((position/y * COLS + position/x) + 1) none
             ]
 
             position/y: position/y + 1
@@ -73,9 +73,9 @@ random-gem: func [x y /falling] [
 reset-board: func [] [
     gems: copy []
 
-    repeat i 100 [
-        y: i - 1  / 10
-        x: mod i - 1 10
+    repeat i (ROWS * COLS) [
+        y: i - 1  / COLS
+        x: mod i - 1 COLS
         append gems random-gem x y
     ]
 
@@ -172,10 +172,10 @@ process-gems: func [/local falling? down gem found] [
     ; check if gems need to fall
     until [
         found: 0
-        repeat i 90 [
+        repeat i (ROWS * COLS - COLS) [
             gem: gems/:i
             if none? gem [continue]
-            down: first at gems (i + 10)
+            down: first at gems (i + COLS)
             if (none? down) [
                 unless gem/falling? [
                     found: found + 1
@@ -189,15 +189,15 @@ process-gems: func [/local falling? down gem found] [
     
     ; check horizontally for matches
     unless falling? [
-        repeat row 10 [
-            mark-matches copy/part at gems (row - 1 * 10 + 1) 10
+        repeat row ROWS [
+            mark-matches copy/part at gems (row - 1 * COLS + 1) COLS
         ]
     ]
 
     ; check vertically for matches
     unless falling? [
-        repeat col 10 [
-            mark-matches extract at gems col 10
+        repeat col COLS [
+            mark-matches extract at gems col COLS
         ]
     ]
 
@@ -230,7 +230,7 @@ process-gems: func [/local falling? down gem found] [
 ]
 
 board: compose [
-    board-view: base (as-pair ROWS * GEM-SIZE COLS * GEM-SIZE) black on-up [
+    board-view: base (as-pair COLS * GEM-SIZE ROWS * GEM-SIZE) black on-up [
         coords: event/offset / GEM-SIZE
 
         either none? origin [
@@ -242,8 +242,8 @@ board: compose [
                 target: coords
                 ; swap origin gem with target gem
                 ; TODO: check if valid move
-                origin-pos: origin/y * 10 + origin/x + 1
-                target-pos: target/y * 10 + target/x + 1
+                origin-pos: origin/y * COLS + origin/x + 1
+                target-pos: target/y * COLS + target/x + 1
                 origin-gem: gems/:origin-pos
                 target-gem: gems/:target-pos
 
