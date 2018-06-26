@@ -12,7 +12,7 @@ Red [
 ; Game parameters
 ROWS: 10
 COLS: 10
-GEM-SIZE: 50
+GEM-SIZE: 25
 SPEED: 5
 ; ---------------
 
@@ -30,7 +30,7 @@ gem: make object! [
     fall: function [] [
         unless falling? [
             falling?: true
-            offset: 50
+            offset: GEM-SIZE
             change at gems ((position/y * COLS + position/x + COLS) + 1) self
 
             ; create new gem
@@ -66,7 +66,7 @@ random-gem: func [x y /falling] [
         color: first random [red green blue yellow pink]
         position: as-pair x y
         falling?: either falling [true] [false]
-        offset: either falling [50] [0]
+        offset: either falling [GEM-SIZE] [0]
     ]
 ]
 
@@ -104,7 +104,7 @@ draw-board: func [/local board] [
     unless none? origin [
         append board compose [
             fill-pen white
-            circle (origin * 50 + (GEM-SIZE / 2)) 20
+            circle (origin * GEM-SIZE + (GEM-SIZE / 2)) 20
         ]
     ]
 
