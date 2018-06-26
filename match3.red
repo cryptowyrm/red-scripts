@@ -27,7 +27,7 @@ gem: make object! [
     falling?: false
     destroyed?: false
 
-    fall: function [] [
+    fall: func [] [
         unless falling? [
             falling?: true
             offset: GEM-SIZE
@@ -44,11 +44,11 @@ gem: make object! [
         ]
     ]
 
-    destroy: function [] [
+    destroy: func [] [
         destroyed?: true
     ]
 
-    animate: function [] [
+    animate: func [] [
         if falling? [
             either (offset > 0) [
                 offset: offset - SPEED
