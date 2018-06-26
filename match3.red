@@ -112,6 +112,41 @@ draw-board: func [/local board] [
     return board
 ]
 
+mark-matches: func [gems [block!]] [
+    marked: copy []
+
+    foreach gem gems [
+        either (none? gem) [
+            if (length? marked) >= 3 [
+                foreach mark marked [
+                    mark/destroy
+                ]
+            ]
+            marked: copy []
+        ] [
+            either any [
+                (empty? marked)
+                ((select (first marked) 'color) = gem/color)
+            ] [
+                append marked gem
+            ] [
+                if (length? marked) >= 3 [
+                    foreach mark marked [
+                        mark/destroy
+                    ]
+                ]
+                marked: copy []
+                append marked gem
+            ]
+        ]
+    ]
+    if (length? marked) >= 3 [
+        foreach mark marked [
+            mark/destroy
+        ]
+    ]
+]
+
 process-gems: func [/local falling? down gem found] [
     ; -- makes blocks fall and destroys blocks with 3 or more connections
 
@@ -153,88 +188,17 @@ process-gems: func [/local falling? down gem found] [
         found = 0
     ]
     
+    ; check horizontally for matches
     unless falling? [
-        ; check horizontally for matches
-        row: 1
-        col: 1
-        marked: copy []
-
-        foreach gem gems [
-            either (none? gem) [
-                if (length? marked) >= 3 [
-                    foreach mark marked [
-                        mark/destroy
-                    ]
-                ]
-                marked: copy []
-            ] [
-                either any [
-                    (empty? marked)
-                    ((select (first marked) 'color) = gem/color)
-                ] [
-                    append marked gem
-                ] [
-                    if (length? marked) >= 3 [
-                        foreach mark marked [
-                            mark/destroy
-                        ]
-                    ]
-                    marked: copy []
-                    append marked gem
-                ]
-            ]
-
-            col: col + 1
-            if (col > 10) [
-                row: row + 1
-                col: 1
-                if (length? marked) >= 3 [
-                    foreach mark marked [
-                        mark/destroy
-                    ]
-                ]
-                marked: copy []
-            ]
+        repeat row 10 [
+            mark-matches copy/part at gems (row - 1 * 10) 10
         ]
     ]
 
     ; check vertically for matches
     unless falling? [
         repeat col 10 [
-            marked: copy []
-            repeat row 10 [
-                gem: first at gems (row * 10 + col - 10)
-                
-                either none? gem [
-                    if (length? marked) >= 3 [
-                        foreach mark marked [
-                            mark/destroy
-                        ]
-                    ]
-                    marked: copy []
-                ] [
-                    either any [
-                        (empty? marked)
-                        ((select (first marked) 'color) = gem/color)
-                    ] [
-                        append marked gem
-                    ] [
-                        if (length? marked) >= 3 [
-                            foreach mark marked [
-                                mark/destroy
-                            ]
-                        ]
-                        marked: copy []
-                        append marked gem
-                    ]
-                ]
-                
-            ]
-            if (length? marked) >= 3 [
-                foreach mark marked [
-                    mark/destroy
-                ]
-            ]
+            mark-matches extract at gems col 10
         ]
     ]
 
