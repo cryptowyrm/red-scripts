@@ -31,7 +31,6 @@ gem: make object! [
         unless falling? [
             falling?: true
             offset: 50
-            print [position "moves to" (position + 0x1)]
             change at gems ((position/y * 10 + position/x + 10) + 1) self
 
             ; create new gem
@@ -232,8 +231,6 @@ process-gems: func [/local falling? down gem found] [
 
 board: compose [
     board-view: base (as-pair ROWS * GEM-SIZE COLS * GEM-SIZE) black on-up [
-        probe event/offset
-
         coords: event/offset / GEM-SIZE
 
         either none? origin [
@@ -249,10 +246,6 @@ board: compose [
                 target-pos: target/y * 10 + target/x + 1
                 origin-gem: gems/:origin-pos
                 target-gem: gems/:target-pos
-                print "ORIGIN"
-                probe origin-gem
-                print "TARGET"
-                probe target-gem
 
                 origin-gem/position: target
                 target-gem/position: origin
@@ -264,8 +257,6 @@ board: compose [
                 target: none
             ]
         ]
-        
-        print origin
     ]
 ]
 
