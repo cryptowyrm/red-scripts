@@ -191,7 +191,7 @@ process-gems: func [/local falling? down gem found] [
     ; check horizontally for matches
     unless falling? [
         repeat row 10 [
-            mark-matches copy/part at gems (row - 1 * 10) 10
+            mark-matches copy/part at gems (row - 1 * 10 + 1) 10
         ]
     ]
 
