@@ -12,7 +12,7 @@ Red [
 ; Game parameters
 ROWS: 10
 COLS: 10
-GEM-SIZE: 25
+GEM-SIZE: 50
 SPEED: 5
 ; ---------------
 
