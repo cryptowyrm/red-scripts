@@ -112,7 +112,7 @@ draw-board: func [/local board] [
     return board
 ]
 
-mark-matches: func [gems [block!]] [
+mark-matches: func [gems [block!] /local marked] [
     marked: copy []
 
     foreach gem gems [
