@@ -15,6 +15,7 @@ COLS: 10
 GEM-SIZE: 50
 SPEED: 5
 REUSE-GEMS: true
+PAUSE: false
 ; ---------------
 
 ; gems clicked on by user, when both are set tiles are swapped
@@ -297,8 +298,11 @@ view [
         button "Restart" [
             board-view/draw: reset-board
         ]
+        button "Pause" [
+            PAUSE: not PAUSE
+        ]
     ]
-    base 0x0 rate 30 on-time [process-gems]
+    base 0x0 rate 30 on-time [unless PAUSE [process-gems]]
 
     do [
         board-view/draw: reset-board
