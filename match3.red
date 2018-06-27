@@ -129,8 +129,10 @@ draw-board: func [] [
     return board
 ]
 
-mark-matches: func [gems [block!] /local marked] [
-    marked: copy []
+marked: copy []
+
+mark-matches: func [gems [block!]] [
+    clear marked
 
     foreach gem gems [
         either (none? gem) [
@@ -139,7 +141,7 @@ mark-matches: func [gems [block!] /local marked] [
                     mark/destroy
                 ]
             ]
-            marked: copy []
+            clear marked
         ] [
             either any [
                 (empty? marked)
@@ -152,7 +154,7 @@ mark-matches: func [gems [block!] /local marked] [
                         mark/destroy
                     ]
                 ]
-                marked: copy []
+                clear marked
                 append marked gem
             ]
         ]
