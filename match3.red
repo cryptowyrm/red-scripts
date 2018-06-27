@@ -62,7 +62,12 @@ gem: make object! [
 
 gems: copy []
 
-random-gem: func [x y /falling] [
+random-gem: func [
+    {Creates a new gem with a random color.}
+    x [integer!]
+    y [integer!]
+    /falling "Gem should be in falling state"
+][
     make gem [
         color: first random [red green blue yellow pink]
         position: as-pair x y
@@ -71,7 +76,10 @@ random-gem: func [x y /falling] [
     ]
 ]
 
-reset-board: func [] [
+reset-board: func [
+    {Fills the game board with randomly created gems and returns the new
+    DRAW block.}
+][
     gems: copy []
 
     repeat i (ROWS * COLS) [
@@ -85,7 +93,9 @@ reset-board: func [] [
 
 board: copy []
 
-draw-board: func [] [
+draw-board: func [
+    "Draws the game board and returns it as a DRAW block."
+][
     clear board
 
     foreach gem gems [
@@ -104,6 +114,7 @@ draw-board: func [] [
         ]
     ]
 
+    ; Draw a white circle on selected gem
     unless none? origin [
         append board compose [
             fill-pen white
@@ -116,7 +127,11 @@ draw-board: func [] [
 
 marked: copy []
 
-mark-matches: func [gems [block!]] [
+mark-matches: func [
+    {Given a block! of gems, it checks for connections and marks the gems
+    that are to be destroyed.}
+    gems [block!]
+][
     clear marked
 
     foreach gem gems [
@@ -151,19 +166,14 @@ mark-matches: func [gems [block!]] [
     ]
 ]
 
-process-gems: func [/local falling? down gem found] [
-    ; -- makes blocks fall and destroys blocks with 3 or more connections
-
-    ; Two passes:
-    ; 1) call /fall function of any gem that has an empty space below
-    ; 2) if no blocks did fall, call /destroy on any gem that connects to three or more of same color
-    ;   -- Go through every row, appending the current color to a block if it's empty or has the same color
-    ;       as other gems in block. If it's different color or end of row reached, check length of block, if 3 or more, call /destroy
-    ;       on all gems in block and add new blocks at the top, then empty block and add the gem
-    ;   -- Do the same for every column
-
-    ; call animate on all gems
-
+process-gems: func [
+    {The game loop. Animates gems and destroys those with 3 or more connections.}
+    /local
+        falling?
+        down
+        gem
+        found
+][
     ; check if any gem is falling, if so skip to animate
     falling?: false
     foreach gem gems [
