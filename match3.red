@@ -14,6 +14,7 @@ ROWS: 10
 COLS: 10
 GEM-SIZE: 50
 SPEED: 5
+REUSE-GEMS: true
 ; ---------------
 
 ; gems clicked on by user, when both are set tiles are swapped
@@ -35,7 +36,11 @@ gem: make object! [
 
             ; create new gem
             either position/y = 0 [
-                change at gems ((position/y * COLS + position/x) + 1) (random-gem/falling position/x 0)
+                either REUSE-GEMS [
+                    change at gems (position/x + 1) (random-gem/falling/reuse position/x 0)
+                ] [
+                    change at gems (position/x + 1) (random-gem/falling position/x 0)
+                ]
             ] [
                 change at gems ((position/y * COLS + position/x) + 1) none
             ]
@@ -60,13 +65,24 @@ gem: make object! [
 ]
 
 gems: copy []
+gems-buffer: copy []
 
-random-gem: func [x y /falling] [
-    make gem [
-        color: first random [red green blue yellow pink]
-        position: as-pair x y
-        falling?: either falling [true] [false]
-        offset: either falling [GEM-SIZE] [0]
+random-gem: func [x y /falling /reuse /local new-gem] [
+    either reuse and (0 < length? gems-buffer) [
+        new-gem: take gems-buffer
+        new-gem/color: first random [red green blue yellow pink]
+        new-gem/position: as-pair x y
+        new-gem/falling?: either falling [true] [false]
+        new-gem/offset: either falling [GEM-SIZE] [0]
+        new-gem/destroyed?: false
+        return new-gem
+    ] [
+        make gem [
+            color: first random [red green blue yellow pink]
+            position: as-pair x y
+            falling?: either falling [true] [false]
+            offset: either falling [GEM-SIZE] [0]
+        ]
     ]
 ]
 
@@ -208,8 +224,15 @@ process-gems: func [/local falling? down gem found] [
         unless (none? gem) [
             if gem/destroyed? [
                 either gem/position/y = 0 [
-                    change gems (random-gem/falling gem/position/x gem/position/y)
+                    either REUSE-GEMS [
+                        change gems (random-gem/falling/reuse gem/position/x gem/position/y)
+                    ] [
+                        change gems (random-gem/falling gem/position/x gem/position/y)
+                    ]
                 ] [
+                    if REUSE-GEMS [
+                        append gems-buffer first gems
+                    ]
                     change gems none
                 ]
             ]
