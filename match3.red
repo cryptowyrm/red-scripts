@@ -98,8 +98,10 @@ reset-board: func [] [
     return draw-board
 ]
 
-draw-board: func [/local board] [
-    board: copy []
+board: copy []
+
+draw-board: func [] [
+    clear board
 
     foreach gem gems [
         if none? gem [continue]
