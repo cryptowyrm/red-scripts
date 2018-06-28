@@ -166,6 +166,29 @@ mark-matches: func [
     ]
 ]
 
+validate-move: func [
+    {Checks if target position is valid move for gem at origin.}
+    origin [pair!]
+    target [pair!]
+    /local
+        valid-targets
+        block-pos
+][
+    valid-targets: reduce [
+        origin + 1x0
+        origin + 0x1
+        origin - 1x0
+        origin - 0x1
+    ]
+
+    remove-each position valid-targets [
+        block-pos: position/y * COLS + position/x + 1
+        not ((block-pos > 0) and (block-pos < (ROWS * COLS)))
+    ]
+
+    return find valid-targets target
+]
+
 process-gems: func [
     {The game loop. Animates gems and destroys those with 3 or more connections.}
     /local
@@ -255,21 +278,23 @@ board: compose [
                 origin: none
             ] [
                 target: coords
-                ; swap origin gem with target gem
-                ; TODO: check if valid move
-                origin-pos: origin/y * COLS + origin/x + 1
-                target-pos: target/y * COLS + target/x + 1
-                origin-gem: gems/:origin-pos
-                target-gem: gems/:target-pos
 
-                origin-gem/position: target
-                target-gem/position: origin
+                ; swap origin gem with target gem if move is valid
+                if (validate-move origin target) [
+                    origin-pos: origin/y * COLS + origin/x + 1
+                    target-pos: target/y * COLS + target/x + 1
+                    origin-gem: gems/:origin-pos
+                    target-gem: gems/:target-pos
 
-                change at gems origin-pos target-gem
-                change at gems target-pos origin-gem
+                    origin-gem/position: target
+                    target-gem/position: origin
 
-                origin: none
-                target: none
+                    change at gems origin-pos target-gem
+                    change at gems target-pos origin-gem
+
+                    origin: none
+                    target: none
+                ]
             ]
         ]
     ]
