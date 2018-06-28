@@ -34,13 +34,13 @@ gem: make object! [
         unless falling? [
             falling?: true
             offset: GEM-SIZE
-            change at gems ((position/y * COLS + position/x + COLS) + 1) self
+            change at gems ((to-index position) + COLS) self
 
             ; create new gem
             either position/y = 0 [
-                change at gems ((position/y * COLS + position/x) + 1) (random-gem/falling position/x 0)
+                change at gems (to-index position) (random-gem/falling position/x 0)
             ] [
-                change at gems ((position/y * COLS + position/x) + 1) none
+                change at gems (to-index position) none
             ]
 
             position/y: position/y + 1
@@ -173,6 +173,13 @@ mark-matches: func [
     ]
 ]
 
+to-index: func [
+    {Converts a pair! position to a block! index.}
+    position [pair!]
+][
+    position/y * COLS + position/x + 1
+]
+
 validate-move: func [
     {Checks if target position is valid move for gem at origin.}
     origin [pair!]
@@ -189,7 +196,7 @@ validate-move: func [
     ]
 
     remove-each position valid-targets [
-        block-pos: position/y * COLS + position/x + 1
+        block-pos: to-index position
         not ((block-pos > 0) and (block-pos < (ROWS * COLS)))
     ]
 
