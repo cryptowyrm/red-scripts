@@ -21,6 +21,8 @@ PAUSE: false
 origin: none
 target: none
 
+RETICLE-SIZE: 8.0
+
 gem: make object! [
     color: red
     position: 0x0
@@ -114,11 +116,16 @@ draw-board: func [
         ]
     ]
 
-    ; Draw a white circle on selected gem
+    ; Draw a white circle on selected gem, green on possible targets
     unless none? origin [
         append board compose [
             fill-pen white
-            circle (origin * GEM-SIZE + (GEM-SIZE / 2)) 20
+            circle (origin * GEM-SIZE + (GEM-SIZE / 2)) 15
+            fill-pen green
+            circle (origin + 1x0 * GEM-SIZE + (GEM-SIZE / 2)) (to-integer RETICLE-SIZE)
+            circle (origin - 1x0 * GEM-SIZE + (GEM-SIZE / 2)) (to-integer RETICLE-SIZE)
+            circle (origin + 0x1 * GEM-SIZE + (GEM-SIZE / 2)) (to-integer RETICLE-SIZE)
+            circle (origin - 0x1 * GEM-SIZE + (GEM-SIZE / 2)) (to-integer RETICLE-SIZE)
         ]
     ]
 
@@ -261,6 +268,13 @@ process-gems: func [
     foreach gem gems [
         if none? gem [continue]
         gem/animate
+    ]
+
+    ; animate target reticles
+    either (RETICLE-SIZE >= 12) [
+        RETICLE-SIZE: 8.0
+    ] [
+        RETICLE-SIZE: RETICLE-SIZE + 0.5
     ]
 
     ; paint updated board
