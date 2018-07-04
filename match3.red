@@ -148,28 +148,19 @@ mark-matches: func [
     clear marked
 
     foreach gem gems [
-        either (none? gem) [
+        either any [
+            (empty? marked)
+            ((select (first marked) 'color) = gem/color)
+        ] [
+            append marked gem
+        ] [
             if (length? marked) >= 3 [
                 foreach mark marked [
                     mark/destroy
                 ]
             ]
             clear marked
-        ] [
-            either any [
-                (empty? marked)
-                ((select (first marked) 'color) = gem/color)
-            ] [
-                append marked gem
-            ] [
-                if (length? marked) >= 3 [
-                    foreach mark marked [
-                        mark/destroy
-                    ]
-                ]
-                clear marked
-                append marked gem
-            ]
+            append marked gem
         ]
     ]
     if (length? marked) >= 3 [
