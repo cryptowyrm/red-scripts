@@ -7,7 +7,6 @@ Red [
 ]
 
 ; TODO: Seed random generator
-; TODO: After reset, when blocks in first row get destroyed, error msg and no new blocks created
 
 ; Game parameters
 ROWS: 10
@@ -81,6 +80,8 @@ random-gem: func [
 reset-board: func [
     {Fills the game board with randomly created gems and returns the new
     DRAW block.}
+    /local
+        i
 ][
     gems: copy []
 
@@ -97,6 +98,8 @@ board: copy []
 
 draw-board: func [
     "Draws the game board and returns it as a DRAW block."
+    /local
+        gem
 ][
     clear board
 
@@ -138,6 +141,9 @@ mark-matches: func [
     {Given a block! of gems, it checks for connections and marks the gems
     that are to be destroyed.}
     gems [block!]
+    /local
+        gem
+        mark
 ][
     clear marked
 
@@ -187,6 +193,7 @@ validate-move: func [
     /local
         valid-targets
         block-pos
+        position
 ][
     valid-targets: reduce [
         origin + 1x0
@@ -210,6 +217,9 @@ process-gems: func [
         down
         gem
         found
+        i
+        row
+        col
 ][
     ; check if any gem is falling, if so skip to animate
     falling?: false
