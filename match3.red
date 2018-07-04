@@ -83,7 +83,7 @@ reset-board: func [
     /local
         i
 ][
-    gems: copy []
+    clear gems
 
     repeat i (ROWS * COLS) [
         y: i - 1  / COLS
