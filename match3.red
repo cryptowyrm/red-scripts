@@ -22,43 +22,43 @@ RETICLE-SIZE: 8.0
 
 random/seed now/time ; use now/time instead of now due to bug in Red 0.6.3
 
+fall: func [gem] [
+    unless gem/falling? [
+        gem/falling?: true
+        gem/offset: GEM-SIZE
+        change at gems ((to-index gem/position) + COLS) gem
+
+        ; create new gem
+        either gem/position/y = 0 [
+            change at gems (to-index gem/position) (random-gem/falling gem/position/x 0)
+        ] [
+            change at gems (to-index gem/position) none
+        ]
+
+        gem/position/y: gem/position/y + 1
+    ]
+]
+
+destroy: func [gem] [
+    gem/destroyed?: true
+]
+
+animate: func [gem] [
+    if gem/falling? [
+        either (gem/offset > 0) [
+            gem/offset: gem/offset - SPEED
+        ] [
+            gem/falling?: false
+        ]
+    ]
+]
+
 gem: make object! [
     color: red
     position: 0x0
     offset: 0
     falling?: false
     destroyed?: false
-
-    fall: func [] [
-        unless falling? [
-            falling?: true
-            offset: GEM-SIZE
-            change at gems ((to-index position) + COLS) self
-
-            ; create new gem
-            either position/y = 0 [
-                change at gems (to-index position) (random-gem/falling position/x 0)
-            ] [
-                change at gems (to-index position) none
-            ]
-
-            position/y: position/y + 1
-        ]
-    ]
-
-    destroy: func [] [
-        destroyed?: true
-    ]
-
-    animate: func [] [
-        if falling? [
-            either (offset > 0) [
-                offset: offset - SPEED
-            ] [
-                falling?: false
-            ]
-        ]
-    ]
 ]
 
 gems: copy []
@@ -156,7 +156,7 @@ mark-matches: func [
         ] [
             if (length? marked) >= 3 [
                 foreach mark marked [
-                    mark/destroy
+                    destroy mark
                 ]
             ]
             clear marked
@@ -165,7 +165,7 @@ mark-matches: func [
     ]
     if (length? marked) >= 3 [
         foreach mark marked [
-            mark/destroy
+            destroy mark
         ]
     ]
 ]
@@ -232,7 +232,7 @@ process-gems: func [
             if (none? down) [
                 unless gem/falling? [
                     found: found + 1
-                    gem/fall
+                    fall gem
                     falling?: true
                 ]
             ]
@@ -275,7 +275,7 @@ process-gems: func [
     ; animate gems
     foreach gem gems [
         if none? gem [continue]
-        gem/animate
+        animate gem
     ]
 
     ; animate target reticles
