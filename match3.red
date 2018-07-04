@@ -70,7 +70,7 @@ random-gem: func [
     /falling "Gem should be in falling state"
 ][
     make gem [
-        color: first random [red green blue yellow pink]
+        color: first random reduce [red green blue yellow pink]
         position: as-pair x y
         falling?: either falling [true] [false]
         offset: either falling [GEM-SIZE] [0]
