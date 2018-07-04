@@ -6,8 +6,6 @@ Red [
     Version: 0.1.0
 ]
 
-; TODO: Seed random generator
-
 ; Game parameters
 ROWS: 10
 COLS: 10
@@ -21,6 +19,8 @@ origin: none
 target: none
 
 RETICLE-SIZE: 8.0
+
+random/seed now/time ; use now/time instead of now due to bug in Red 0.6.3
 
 gem: make object! [
     color: red
