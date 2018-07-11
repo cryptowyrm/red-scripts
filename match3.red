@@ -26,14 +26,10 @@ fall: func [gem] [
     unless gem/falling? [
         gem/falling?: true
         gem/offset: GEM-SIZE
-        change at gems ((to-index gem/position) + COLS) gem
+        change at gems (to-index gem/position) + COLS gem
 
-        ; create new gem
-        either gem/position/y = 0 [
-            change at gems (to-index gem/position) (random-gem/falling gem/position/x 0)
-        ] [
-            change at gems (to-index gem/position) none
-        ]
+        ; create new gem if falling from the very top
+        change at gems to-index gem/position either gem/position/y = 0 [random-gem/falling gem/position/x 0][none]
 
         gem/position/y: gem/position/y + 1
     ]
@@ -108,7 +104,7 @@ draw-board: func [
         y: gem/position/y
         x: gem/position/x
 
-        pos-y: (GEM-SIZE * y) - gem/offset
+        pos-y: GEM-SIZE * y - gem/offset
 
         if gem/destroyed? [continue]
 
@@ -260,11 +256,7 @@ process-gems: func [
 
         unless (none? gem) [
             if gem/destroyed? [
-                either gem/position/y = 0 [
-                    change gems (random-gem/falling gem/position/x gem/position/y)
-                ] [
-                    change gems none
-                ]
+                change gems either gem/position/y = 0 [random-gem/falling gem/position/x gem/position/y][none]
             ]
         ]
 
@@ -279,11 +271,7 @@ process-gems: func [
     ]
 
     ; animate target reticles
-    either (RETICLE-SIZE >= 12) [
-        RETICLE-SIZE: 8.0
-    ] [
-        RETICLE-SIZE: RETICLE-SIZE + 0.5
-    ]
+    RETICLE-SIZE: either RETICLE-SIZE >= 12 [8.0][RETICLE-SIZE + 0.5]
 
     ; paint updated board
     board-view/draw: draw-board
