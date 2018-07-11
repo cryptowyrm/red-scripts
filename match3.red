@@ -96,6 +96,7 @@ draw-board: func [
     "Draws the game board and returns it as a DRAW block."
     /local
         gem
+        pos
 ][
     clear board
 
@@ -121,10 +122,12 @@ draw-board: func [
             fill-pen white
             circle (origin * GEM-SIZE + (GEM-SIZE / 2)) 15
             fill-pen green
-            circle (origin + 1x0 * GEM-SIZE + (GEM-SIZE / 2)) (to-integer RETICLE-SIZE)
-            circle (origin - 1x0 * GEM-SIZE + (GEM-SIZE / 2)) (to-integer RETICLE-SIZE)
-            circle (origin + 0x1 * GEM-SIZE + (GEM-SIZE / 2)) (to-integer RETICLE-SIZE)
-            circle (origin - 0x1 * GEM-SIZE + (GEM-SIZE / 2)) (to-integer RETICLE-SIZE)
+        ]
+
+        foreach pos reduce [origin + 1x0 origin - 1x0 origin + 0x1 origin - 0x1] [
+            append board compose [
+                circle (pos * GEM-SIZE + (GEM-SIZE / 2)) (to-integer RETICLE-SIZE)
+            ]
         ]
     ]
 
