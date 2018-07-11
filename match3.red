@@ -282,8 +282,8 @@ swap-gems: function [
     origin [pair!]
     target [pair!]
 ][
-    origin-pos: origin/y * COLS + origin/x + 1
-    target-pos: target/y * COLS + target/x + 1
+    origin-pos: to-index origin
+    target-pos: to-index target
     origin-gem: gems/:origin-pos
     target-gem: gems/:target-pos
 
