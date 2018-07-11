@@ -277,6 +277,23 @@ process-gems: func [
     board-view/draw: draw-board
 ]
 
+swap-gems: function [
+    "Swap two gems with each other, given their positions."
+    origin [pair!]
+    target [pair!]
+][
+    origin-pos: origin/y * COLS + origin/x + 1
+    target-pos: target/y * COLS + target/x + 1
+    origin-gem: gems/:origin-pos
+    target-gem: gems/:target-pos
+
+    origin-gem/position: target
+    target-gem/position: origin
+
+    change at gems origin-pos target-gem
+    change at gems target-pos origin-gem
+]
+
 board: compose [
     board-view: base (as-pair COLS * GEM-SIZE ROWS * GEM-SIZE) black on-up [
         coords: event/offset / GEM-SIZE
@@ -291,16 +308,7 @@ board: compose [
 
                 ; swap origin gem with target gem if move is valid
                 if (validate-move origin target) [
-                    origin-pos: origin/y * COLS + origin/x + 1
-                    target-pos: target/y * COLS + target/x + 1
-                    origin-gem: gems/:origin-pos
-                    target-gem: gems/:target-pos
-
-                    origin-gem/position: target
-                    target-gem/position: origin
-
-                    change at gems origin-pos target-gem
-                    change at gems target-pos origin-gem
+                    swap-gems origin target
 
                     origin: none
                     target: none
