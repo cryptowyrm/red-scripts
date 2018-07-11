@@ -12,6 +12,7 @@ COLS: 10
 GEM-SIZE: 50
 SPEED: 5
 PAUSE: false
+USE-IMAGES: true
 ; ---------------
 
 ; gems clicked on by user, when both are set tiles are swapped
@@ -19,6 +20,15 @@ origin: none
 target: none
 
 RETICLE-SIZE: 8.0
+
+; gem images
+images: make object! [
+    red: load %assets/red.png
+    green: load %assets/green.png
+    blue: load %assets/blue.png
+    purple: load %assets/purple.png
+    yellow: load %assets/yellow.png
+]
 
 random/seed now/time ; use now/time instead of now due to bug in Red 0.6.3
 
@@ -66,7 +76,7 @@ random-gem: func [
     /falling "Gem should be in falling state"
 ][
     make gem [
-        color: first random reduce [red green blue yellow pink]
+        color: first random [red green blue yellow purple]
         position: as-pair x y
         falling?: either falling [true] [false]
         offset: either falling [GEM-SIZE] [0]
@@ -109,10 +119,16 @@ draw-board: func [
 
         if gem/destroyed? [continue]
 
-        append board compose [
-            line-width 3
-            fill-pen (gem/color)
-            box (as-pair GEM-SIZE * x pos-y) ((as-pair GEM-SIZE * x pos-y) + GEM-SIZE)
+        either USE-IMAGES [
+            append board compose [
+                image (select images gem/color) (as-pair GEM-SIZE * x pos-y) ((as-pair GEM-SIZE * x pos-y) + GEM-SIZE)
+            ]
+        ][
+            append board compose [
+                line-width 3
+                fill-pen (gem/color)
+                box (as-pair GEM-SIZE * x pos-y) ((as-pair GEM-SIZE * x pos-y) + GEM-SIZE)
+            ]
         ]
     ]
 
@@ -309,7 +325,7 @@ swap-gems: function [
 ]
 
 board: compose [
-    board-view: base (as-pair COLS * GEM-SIZE ROWS * GEM-SIZE) black on-up [
+    board-view: base (as-pair COLS * GEM-SIZE ROWS * GEM-SIZE) 50.50.50 on-up [
         coords: event/offset / GEM-SIZE
 
         either none? origin [
