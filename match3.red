@@ -135,13 +135,15 @@ marked: copy []
 
 mark-matches: func [
     {Given a block! of gems, it checks for connections and marks the gems
-    that are to be destroyed.}
+    that are to be destroyed. Returns number of gems marked.}
     gems [block!]
     /local
         gem
         mark
+        count
 ][
     clear marked
+    count: 0
 
     foreach gem gems [
         either any [
@@ -153,6 +155,7 @@ mark-matches: func [
             if (length? marked) >= 3 [
                 foreach mark marked [
                     destroy mark
+                    count: count + 1
                 ]
             ]
             clear marked
@@ -162,7 +165,27 @@ mark-matches: func [
     if (length? marked) >= 3 [
         foreach mark marked [
             destroy mark
+            count: count + 1
         ]
+    ]
+    return count
+]
+
+check-matches: function [
+    {Check the game board for matches and mark gems.
+    Returns number of marked gems.}
+    /local count
+][
+    count: 0
+
+    ; check horizontally for matches
+    repeat row ROWS [
+        count: count + mark-matches copy/part at gems (row - 1 * COLS + 1) COLS
+    ]
+
+    ; check vertically for matches
+    repeat col COLS [
+        count: count + mark-matches extract at gems col COLS
     ]
 ]
 
@@ -236,19 +259,7 @@ process-gems: func [
         found = 0
     ]
     
-    ; check horizontally for matches
-    unless falling? [
-        repeat row ROWS [
-            mark-matches copy/part at gems (row - 1 * COLS + 1) COLS
-        ]
-    ]
-
-    ; check vertically for matches
-    unless falling? [
-        repeat col COLS [
-            mark-matches extract at gems col COLS
-        ]
-    ]
+    unless falling? [check-matches]
 
     ; change destroyed gems to none (or new gem if at y 0)
     while [not tail? gems] [
@@ -278,7 +289,7 @@ process-gems: func [
 ]
 
 swap-gems: function [
-    "Swap two gems with each other, given their positions."
+    {Swap two gems with each other, given their positions.}
     origin [pair!]
     target [pair!]
 ][
@@ -310,8 +321,14 @@ board: compose [
                 if (validate-move origin target) [
                     swap-gems origin target
 
-                    origin: none
-                    target: none
+                    either check-matches > 0 [
+                        origin: none
+                        target: none
+                    ][
+                        ; Invalid move, didn't result in a match
+                        swap-gems origin target
+                        target: none
+                    ]
                 ]
             ]
         ]
