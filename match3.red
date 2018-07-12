@@ -10,7 +10,7 @@ Red [
 ROWS: 8
 COLS: 8
 GEM-SIZE: 60
-SPEED: 4
+SPEED: 150
 FPS: 60
 PAUSE: false
 USE-IMAGES: true
@@ -27,6 +27,7 @@ fps-count: 0
 fps-time: now/time/precise
 seconds-left: 180
 last-second: now/time/precise
+delta-time: now/time/precise
 game-over: false
 font-face: make face! [font: make font! [size: 48 color: white]]
 
@@ -58,10 +59,10 @@ destroy: func [gem] [
     gem/destroyed?: true
 ]
 
-animate: func [gem] [
+animate: func [gem delta] [
     if gem/falling? [
         either (gem/offset > 0) [
-            gem/offset: gem/offset - SPEED
+            gem/offset: gem/offset - (SPEED * to-float delta)
             if gem/offset < 0 [gem/offset: 0]
         ] [
             gem/falling?: false
@@ -127,7 +128,7 @@ draw-board: func [
         y: gem/position/y
         x: gem/position/x
 
-        pos-y: GEM-SIZE * y - gem/offset
+        pos-y: GEM-SIZE * y - to-integer gem/offset
 
         if gem/destroyed? [continue]
 
@@ -288,7 +289,11 @@ process-gems: func [
         row
         col
         destroyed
+        delta
 ][
+    delta: now/time/precise - delta-time
+    delta-time: now/time/precise
+
     ; calculate FPS
     either now/time/precise - fps-time >= 0:0:1 [
         fps-label/data: fps-count
@@ -359,7 +364,7 @@ process-gems: func [
     ; animate gems
     foreach gem gems [
         if none? gem [continue]
-        animate gem
+        animate gem delta
     ]
 
     ; animate target reticles
