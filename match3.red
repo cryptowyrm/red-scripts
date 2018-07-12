@@ -169,7 +169,7 @@ draw-board: func [
             text (as-pair board-view/size/x - fontpos1/x / 2 board-view/size/y - fontpos1/y / 2 - 50) "GAME OVER"
             pen white
             line-width 5
-            line (as-pair board-view/size/x / 2 - 150 board-view/size/y - fontpos1/y / 2 + 45) (as-pair board-view/size/x / 2 + 150 board-view/size/y - fontpos1/y / 2 + 45)
+            line (as-pair board-view/size/x / 2 - 200 board-view/size/y / 2) (as-pair board-view/size/x / 2 + 200 board-view/size/y / 2)
             text (as-pair board-view/size/x - fontpos2/x / 2 board-view/size/y - fontpos2/y / 2 + 50) (append copy "Score: " score)
         ]
     ]
