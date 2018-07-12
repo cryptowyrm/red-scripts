@@ -10,7 +10,7 @@ Red [
 ROWS: 8
 COLS: 8
 GEM-SIZE: 60
-SPEED: 5
+SPEED: 4
 FPS: 60
 PAUSE: false
 USE-IMAGES: true
@@ -62,6 +62,7 @@ animate: func [gem] [
     if gem/falling? [
         either (gem/offset > 0) [
             gem/offset: gem/offset - SPEED
+            if gem/offset < 0 [gem/offset: 0]
         ] [
             gem/falling?: false
         ]
