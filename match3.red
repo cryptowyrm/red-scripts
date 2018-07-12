@@ -23,6 +23,8 @@ target: none
 RETICLE-SIZE: 8.0
 SCORE: 0
 falling?: false
+fps-count: 0
+fps-time: now/time/precise
 
 ; gem images
 images: make object! [
@@ -264,6 +266,15 @@ process-gems: func [
         col
         destroyed
 ][
+    ; calculate FPS
+    either now/time/precise - fps-time >= 0:0:1 [
+        fps-label/data: fps-count
+        fps-count: 0
+        fps-time: now/time/precise
+    ][
+        fps-count: fps-count + 1
+    ]
+
     ; check if any gem is falling, if so skip to animate
     falling?: false
     foreach gem gems [
@@ -378,6 +389,7 @@ view [
     group-box "Game" board
 
     below
+    group-box "FPS" [fps-label: text "0"]
     group-box "Score" [score-label: text "0"]
     group-box "Controls" [
         button "Restart" [
