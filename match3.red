@@ -7,10 +7,11 @@ Red [
 ]
 
 ; Game parameters
-ROWS: 10
-COLS: 10
-GEM-SIZE: 50
+ROWS: 8
+COLS: 8
+GEM-SIZE: 60
 SPEED: 5
+FPS: 60
 PAUSE: false
 USE-IMAGES: true
 ; ---------------
@@ -317,7 +318,7 @@ process-gems: func [
     ]
 
     ; animate target reticles
-    RETICLE-SIZE: either RETICLE-SIZE >= 12 [8.0][RETICLE-SIZE + 0.5]
+    RETICLE-SIZE: either RETICLE-SIZE >= 12 [8.0][RETICLE-SIZE + 0.25]
 
     ; paint updated board
     board-view/draw: draw-board
@@ -386,7 +387,7 @@ view [
             PAUSE: not PAUSE
         ]
     ]
-    base 0x0 rate 30 on-time [unless PAUSE [process-gems]]
+    base 0x0 rate FPS on-time [unless PAUSE [process-gems]]
 
     do [
         board-view/draw: reset-board
