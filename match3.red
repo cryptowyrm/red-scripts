@@ -445,6 +445,7 @@ view [
         ]
         button "Pause" [
             PAUSE: not PAUSE
+            delta-time: now/time/precise
         ]
     ]
     base 0x0 rate FPS on-time [unless any [PAUSE game-over] [process-gems]]
