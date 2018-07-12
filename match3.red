@@ -261,7 +261,7 @@ validate-move: func [
 
     remove-each position valid-targets [
         block-pos: to-index position
-        not ((block-pos > 0) and (block-pos < (ROWS * COLS)))
+        not ((block-pos > 0) and (block-pos <= (ROWS * COLS)))
     ]
 
     return find valid-targets target
