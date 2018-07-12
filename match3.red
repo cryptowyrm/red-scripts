@@ -241,6 +241,17 @@ validate-move: func [
     return find valid-targets target
 ]
 
+add-score: func [count [integer!]][
+    SCORE: SCORE + case [
+        count >= 6 [count * 40]
+        count = 5 [count * 20]
+        count = 4 [count * 10]
+        count = 3 [count * 5]
+        true [0]
+    ]
+    if count > 2 [score-label/data: SCORE]
+]
+
 process-gems: func [
     {The game loop. Animates gems and destroys those with 3 or more connections.}
     /local
@@ -250,6 +261,7 @@ process-gems: func [
         i
         row
         col
+        destroyed
 ][
     ; check if any gem is falling, if so skip to animate
     falling?: false
@@ -282,11 +294,13 @@ process-gems: func [
     unless falling? [check-matches]
 
     ; change destroyed gems to none (or new gem if at y 0)
+    destroyed: 0
     while [not tail? gems] [
         gem: first gems
 
         unless (none? gem) [
             if gem/destroyed? [
+                destroyed: destroyed + 1
                 change gems either gem/position/y = 0 [random-gem/falling gem/position/x gem/position/y][none]
             ]
         ]
@@ -294,6 +308,7 @@ process-gems: func [
         gems: next gems
     ]
     gems: head gems
+    add-score destroyed
 
     ; animate gems
     foreach gem gems [
