@@ -20,6 +20,8 @@ origin: none
 target: none
 
 RETICLE-SIZE: 8.0
+SCORE: 0
+falling?: false
 
 ; gem images
 images: make object! [
@@ -242,7 +244,6 @@ validate-move: func [
 process-gems: func [
     {The game loop. Animates gems and destroys those with 3 or more connections.}
     /local
-        falling?
         down
         gem
         found
@@ -334,19 +335,21 @@ board: compose [
             either coords = origin [
                 origin: none
             ] [
-                target: coords
+                unless falling? [
+                    target: coords
 
-                ; swap origin gem with target gem if move is valid
-                if (validate-move origin target) [
-                    swap-gems origin target
-
-                    either check-matches > 0 [
-                        origin: none
-                        target: none
-                    ][
-                        ; Invalid move, didn't result in a match
+                    ; swap origin gem with target gem if move is valid
+                    if (validate-move origin target) [
                         swap-gems origin target
-                        target: none
+
+                        either check-matches > 0 [
+                            origin: none
+                            target: none
+                        ][
+                            ; Invalid move, didn't result in a match
+                            swap-gems origin target
+                            target: none
+                        ]
                     ]
                 ]
             ]
