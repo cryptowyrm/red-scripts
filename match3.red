@@ -25,6 +25,10 @@ SCORE: 0
 falling?: false
 fps-count: 0
 fps-time: now/time/precise
+seconds-left: 180
+last-second: now/time/precise
+game-over: false
+font-face: make face! [font: make font! [size: 48 color: white]]
 
 ; gem images
 images: make object! [
@@ -112,6 +116,8 @@ draw-board: func [
     /local
         gem
         pos
+        fontpos1
+        fontpos2
 ][
     clear board
 
@@ -149,6 +155,22 @@ draw-board: func [
             append board compose [
                 circle (pos * GEM-SIZE + (GEM-SIZE / 2)) (to-integer RETICLE-SIZE)
             ]
+        ]
+    ]
+
+    ; Draw game over screen
+    if game-over [
+        fontpos1: size-text/with font-face "GAME OVER"
+        fontpos2: size-text/with font-face append copy "Score: " score
+        append board compose [
+            fill-pen 0.0.0.125
+            box 0x0 (board-view/size)
+            font (font-face/font)
+            text (as-pair board-view/size/x - fontpos1/x / 2 board-view/size/y - fontpos1/y / 2 - 50) "GAME OVER"
+            pen white
+            line-width 5
+            line (as-pair board-view/size/x / 2 - 150 board-view/size/y - fontpos1/y / 2 + 45) (as-pair board-view/size/x / 2 + 150 board-view/size/y - fontpos1/y / 2 + 45)
+            text (as-pair board-view/size/x - fontpos2/x / 2 board-view/size/y - fontpos2/y / 2 + 50) (append copy "Score: " score)
         ]
     ]
 
@@ -275,6 +297,17 @@ process-gems: func [
         fps-count: fps-count + 1
     ]
 
+    ; display time
+    if (not game-over) and (now/time/precise - last-second >= 0:0:1) [
+        seconds-left: seconds-left - 1
+        seconds-label/data: seconds-left
+        last-second: now/time/precise
+
+        if seconds-left = 0 [
+            game-over: true
+        ]
+    ]
+
     ; check if any gem is falling, if so skip to animate
     falling?: false
     foreach gem gems [
@@ -390,16 +423,25 @@ view [
 
     below
     group-box "FPS" [fps-label: text "0"]
+    group-box "Time left" [seconds-label: text "0"]
     group-box "Score" [score-label: text "0"]
     group-box "Controls" [
         button "Restart" [
             board-view/draw: reset-board
+            seconds-left: 180
+            last-second: now/time/precise
+            game-over: false
+            seconds-label/data: 180
+            score: 0
+            score-label/data: 0
+            origin: none
+            target: none
         ]
         button "Pause" [
             PAUSE: not PAUSE
         ]
     ]
-    base 0x0 rate FPS on-time [unless PAUSE [process-gems]]
+    base 0x0 rate FPS on-time [unless any [PAUSE game-over] [process-gems]]
 
     do [
         board-view/draw: reset-board
