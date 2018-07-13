@@ -120,17 +120,16 @@ draw-board: func [
         pos
         fontpos1
         fontpos2
+        pos-y
 ][
     clear board
 
     foreach gem gems [
-        if none? gem [continue]
+        if any [none? gem gem/destroyed?] [continue]
         y: gem/position/y
         x: gem/position/x
 
         pos-y: GEM-SIZE * y - to-integer gem/offset
-
-        if gem/destroyed? [continue]
 
         either USE-IMAGES [
             append board compose [
@@ -222,7 +221,6 @@ mark-matches: func [
 check-matches: function [
     {Check the game board for matches and mark gems.
     Returns number of marked gems.}
-    /local count
 ][
     count: 0
 
