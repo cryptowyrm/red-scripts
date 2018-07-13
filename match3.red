@@ -368,6 +368,20 @@ process-gems: func [
     ; animate target reticles
     RETICLE-SIZE: either RETICLE-SIZE >= 12 [8.0][RETICLE-SIZE + 0.25]
 
+    ; swap origin gem with target gem if both set and move is valid
+    if all [not falling? origin target validate-move origin target] [
+        swap-gems origin target
+
+        either check-matches > 0 [
+            origin: none
+            target: none
+        ][
+            ; Invalid move, didn't result in a match
+            swap-gems origin target
+            target: none
+        ]
+    ]
+
     ; paint updated board
     board-view/draw: draw-board
 ]
@@ -401,20 +415,6 @@ board: compose [
             ] [
                 unless falling? [
                     target: coords
-
-                    ; swap origin gem with target gem if move is valid
-                    if (validate-move origin target) [
-                        swap-gems origin target
-
-                        either check-matches > 0 [
-                            origin: none
-                            target: none
-                        ][
-                            ; Invalid move, didn't result in a match
-                            swap-gems origin target
-                            target: none
-                        ]
-                    ]
                 ]
             ]
         ]
