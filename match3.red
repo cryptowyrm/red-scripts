@@ -25,7 +25,8 @@ SCORE: 0
 falling?: false
 fps-count: 0
 fps-time: now/time/precise
-seconds-left: 180
+seconds-left: 90
+seconds-start: 0
 last-second: now/time/precise
 delta-time: now/time/precise
 game-over: false
@@ -268,10 +269,10 @@ validate-move: func [
 
 add-score: func [count [integer!]][
     SCORE: SCORE + case [
-        count >= 6 [seconds-left: seconds-left + 6 count * 40]
-        count = 5 [seconds-left: seconds-left + 5 count * 20]
-        count = 4 [seconds-left: seconds-left + 4 count * 10]
-        count = 3 [seconds-left: seconds-left + 3 count * 5]
+        count >= 6 [seconds-left: seconds-left + 3 count * 40]
+        count = 5 [seconds-left: seconds-left + 2 count * 20]
+        count = 4 [seconds-left: seconds-left + 1 count * 10]
+        count = 3 [count * 5]
         true [0]
     ]
     if count > 2 [score-label/data: SCORE]
@@ -306,6 +307,8 @@ process-gems: func [
         seconds-left: seconds-left - 1
         seconds-label/data: seconds-left
         last-second: now/time/precise
+        seconds-start: seconds-start + 1
+        elapsed-label/data: seconds-start
 
         if seconds-left = 0 [
             game-over: true
@@ -427,15 +430,18 @@ view [
 
     below
     group-box "FPS" [fps-label: text "0"]
-    group-box "Time left" [seconds-label: text "0"]
+    group-box "Time elapsed" [elapsed-label: text "0"]
+    group-box "Time left" [seconds-label: text "90"]
     group-box "Score" [score-label: text "0"]
     group-box "Controls" [
         button "Restart" [
             board-view/draw: reset-board
-            seconds-left: 180
+            seconds-left: 90
+            seconds-start: 0
+            elapsed-label/data: 0
             last-second: now/time/precise
             game-over: false
-            seconds-label/data: 180
+            seconds-label/data: 90
             score: 0
             score-label/data: 0
             origin: none
