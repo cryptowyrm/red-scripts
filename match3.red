@@ -14,8 +14,8 @@ SPEED: 150
 FPS: 60
 USE-IMAGES: true
 FONT-FACE: make face! [font: make font! [size: 48 color: white]]
-; ---------------
 
+; Game state
 state: make reactor! [
     origin: none
     target: none
@@ -32,6 +32,10 @@ state: make reactor! [
     delta-time: now/time/precise
     game-over: false
 ]
+
+gems: copy []       ; gem objects
+board: copy []      ; draw block
+marked: copy []     ; gems marked for removal
 
 ; gem images
 images: make object! [
@@ -80,8 +84,6 @@ gem: make object! [
     destroyed?: false
 ]
 
-gems: copy []
-
 random-gem: func [
     {Creates a new gem with a random color.}
     x [integer!]
@@ -112,8 +114,6 @@ reset-board: func [
 
     return draw-board
 ]
-
-board: copy []
 
 draw-board: func [
     "Draws the game board and returns it as a DRAW block."
@@ -179,8 +179,6 @@ draw-board: func [
 
     return board
 ]
-
-marked: copy []
 
 mark-matches: func [
     {Given a block! of gems, it checks for connections and marks the gems
