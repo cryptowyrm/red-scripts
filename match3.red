@@ -23,6 +23,7 @@ state: make reactor! [
     pause: false
     score: 0
     falling?: false
+    fps-display: 0
     fps-count: 0
     fps-time: now/time/precise
     seconds-left: 90
@@ -275,7 +276,6 @@ add-score: func [count [integer!]][
         count = 3 [count * 5]
         true [0]
     ]
-    if count > 2 [score-label/data: state/score]
 ]
 
 process-gems: func [
@@ -295,7 +295,7 @@ process-gems: func [
 
     ; calculate FPS
     either now/time/precise - state/fps-time >= 0:0:1 [
-        fps-label/data: state/fps-count
+        state/fps-display: state/fps-count
         state/fps-count: 0
         state/fps-time: now/time/precise
     ][
@@ -305,10 +305,8 @@ process-gems: func [
     ; display time
     if (not state/game-over) and (now/time/precise - state/last-second >= 0:0:1) [
         state/seconds-left: state/seconds-left - 1
-        seconds-label/data: state/seconds-left
         state/last-second: now/time/precise
         state/seconds-start: state/seconds-start + 1
-        elapsed-label/data: state/seconds-start
 
         if state/seconds-left = 0 [
             state/game-over: true
@@ -429,21 +427,18 @@ view [
     group-box "Game" board
 
     below
-    group-box "FPS" [fps-label: text "0"]
-    group-box "Time elapsed" [elapsed-label: text "0"]
-    group-box "Time left" [seconds-label: text "90"]
-    group-box "Score" [score-label: text "0"]
+    group-box "FPS" [fps-label: text react [face/data: state/fps-display]]
+    group-box "Time elapsed" [elapsed-label: text react [face/data: state/seconds-start]]
+    group-box "Time left" [seconds-label: text react [face/data: state/seconds-left]]
+    group-box "Score" [score-label: text react [face/data: state/score]]
     group-box "Controls" [
         button "Restart" [
             board-view/draw: reset-board
             state/seconds-left: 90
             state/seconds-start: 0
-            elapsed-label/data: 0
             state/last-second: now/time/precise
             state/game-over: false
-            seconds-label/data: 90
             state/score: 0
-            score-label/data: 0
             state/origin: none
             state/target: none
         ]
