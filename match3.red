@@ -6,31 +6,31 @@ Red [
     Version: 0.1.0
 ]
 
-; Game parameters
+; Game parameters / Constants
 ROWS: 8
 COLS: 8
 GEM-SIZE: 60
 SPEED: 150
 FPS: 60
-PAUSE: false
 USE-IMAGES: true
+FONT-FACE: make face! [font: make font! [size: 48 color: white]]
 ; ---------------
 
-; gems clicked on by user, when both are set tiles are swapped
-origin: none
-target: none
-
-RETICLE-SIZE: 8.0
-SCORE: 0
-falling?: false
-fps-count: 0
-fps-time: now/time/precise
-seconds-left: 90
-seconds-start: 0
-last-second: now/time/precise
-delta-time: now/time/precise
-game-over: false
-font-face: make face! [font: make font! [size: 48 color: white]]
+state: make reactor! [
+    origin: none
+    target: none
+    reticle-size: 8.0
+    pause: false
+    score: 0
+    falling?: false
+    fps-count: 0
+    fps-time: now/time/precise
+    seconds-left: 90
+    seconds-start: 0
+    last-second: now/time/precise
+    delta-time: now/time/precise
+    game-over: false
+]
 
 ; gem images
 images: make object! [
@@ -146,33 +146,33 @@ draw-board: func [
     ]
 
     ; Draw a white circle on selected gem, green on possible targets
-    unless none? origin [
+    unless none? state/origin [
         append board compose [
             fill-pen white
-            circle (origin * GEM-SIZE + (GEM-SIZE / 2)) 15
+            circle (state/origin * GEM-SIZE + (GEM-SIZE / 2)) 15
             fill-pen green
         ]
 
-        foreach pos reduce [origin + 1x0 origin - 1x0 origin + 0x1 origin - 0x1] [
+        foreach pos reduce [state/origin + 1x0 state/origin - 1x0 state/origin + 0x1 state/origin - 0x1] [
             append board compose [
-                circle (pos * GEM-SIZE + (GEM-SIZE / 2)) (to-integer RETICLE-SIZE)
+                circle (pos * GEM-SIZE + (GEM-SIZE / 2)) (to-integer state/reticle-size)
             ]
         ]
     ]
 
     ; Draw game over screen
-    if game-over [
-        fontpos1: size-text/with font-face "GAME OVER"
-        fontpos2: size-text/with font-face append copy "Score: " score
+    if state/game-over [
+        fontpos1: size-text/with FONT-FACE "GAME OVER"
+        fontpos2: size-text/with FONT-FACE append copy "Score: " state/score
         append board compose [
             fill-pen 0.0.0.125
             box 0x0 (board-view/size)
-            font (font-face/font)
+            font (FONT-FACE/font)
             text (as-pair board-view/size/x - fontpos1/x / 2 board-view/size/y - fontpos1/y / 2 - 50) "GAME OVER"
             pen white
             line-width 5
             line (as-pair board-view/size/x / 2 - 200 board-view/size/y / 2) (as-pair board-view/size/x / 2 + 200 board-view/size/y / 2)
-            text (as-pair board-view/size/x - fontpos2/x / 2 board-view/size/y - fontpos2/y / 2 + 50) (append copy "Score: " score)
+            text (as-pair board-view/size/x - fontpos2/x / 2 board-view/size/y - fontpos2/y / 2 + 50) (append copy "Score: " state/score)
         ]
     ]
 
@@ -268,14 +268,14 @@ validate-move: func [
 ]
 
 add-score: func [count [integer!]][
-    SCORE: SCORE + case [
-        count >= 6 [seconds-left: seconds-left + 3 count * 40]
-        count = 5 [seconds-left: seconds-left + 2 count * 20]
-        count = 4 [seconds-left: seconds-left + 1 count * 10]
+    state/score: state/score + case [
+        count >= 6 [state/seconds-left: state/seconds-left + 3 count * 40]
+        count = 5 [state/seconds-left: state/seconds-left + 2 count * 20]
+        count = 4 [state/seconds-left: state/seconds-left + 1 count * 10]
         count = 3 [count * 5]
         true [0]
     ]
-    if count > 2 [score-label/data: SCORE]
+    if count > 2 [score-label/data: state/score]
 ]
 
 process-gems: func [
@@ -290,37 +290,37 @@ process-gems: func [
         destroyed
         delta
 ][
-    delta: now/time/precise - delta-time
-    delta-time: now/time/precise
+    delta: now/time/precise - state/delta-time
+    state/delta-time: now/time/precise
 
     ; calculate FPS
-    either now/time/precise - fps-time >= 0:0:1 [
-        fps-label/data: fps-count
-        fps-count: 0
-        fps-time: now/time/precise
+    either now/time/precise - state/fps-time >= 0:0:1 [
+        fps-label/data: state/fps-count
+        state/fps-count: 0
+        state/fps-time: now/time/precise
     ][
-        fps-count: fps-count + 1
+        state/fps-count: state/fps-count + 1
     ]
 
     ; display time
-    if (not game-over) and (now/time/precise - last-second >= 0:0:1) [
-        seconds-left: seconds-left - 1
-        seconds-label/data: seconds-left
-        last-second: now/time/precise
-        seconds-start: seconds-start + 1
-        elapsed-label/data: seconds-start
+    if (not state/game-over) and (now/time/precise - state/last-second >= 0:0:1) [
+        state/seconds-left: state/seconds-left - 1
+        seconds-label/data: state/seconds-left
+        state/last-second: now/time/precise
+        state/seconds-start: state/seconds-start + 1
+        elapsed-label/data: state/seconds-start
 
-        if seconds-left = 0 [
-            game-over: true
+        if state/seconds-left = 0 [
+            state/game-over: true
         ]
     ]
 
     ; check if any gem is falling, if so skip to animate
-    falling?: false
+    state/falling?: false
     foreach gem gems [
         if none? gem [continue]
         if gem/falling? [
-            falling?: true
+            state/falling?: true
             break
         ]
     ]
@@ -336,14 +336,14 @@ process-gems: func [
                 unless gem/falling? [
                     found: found + 1
                     fall gem
-                    falling?: true
+                    state/falling?: true
                 ]
             ]
         ]
         found = 0
     ]
     
-    unless falling? [check-matches]
+    unless state/falling? [check-matches]
 
     ; change destroyed gems to none (or new gem if at y 0)
     destroyed: 0
@@ -369,19 +369,19 @@ process-gems: func [
     ]
 
     ; animate target reticles
-    RETICLE-SIZE: either RETICLE-SIZE >= 12 [8.0][RETICLE-SIZE + 0.25]
+    state/reticle-size: either state/reticle-size >= 12 [8.0][state/reticle-size + 0.25]
 
     ; swap origin gem with target gem if both set and move is valid
-    if all [not falling? origin target validate-move origin target] [
-        swap-gems origin target
+    if all [not state/falling? state/origin state/target validate-move state/origin state/target] [
+        swap-gems state/origin state/target
 
         either check-matches > 0 [
-            origin: none
-            target: none
+            state/origin: none
+            state/target: none
         ][
             ; Invalid move, didn't result in a match
-            swap-gems origin target
-            target: none
+            swap-gems state/origin state/target
+            state/target: none
         ]
     ]
 
@@ -410,14 +410,14 @@ board: compose [
     board-view: base (as-pair COLS * GEM-SIZE ROWS * GEM-SIZE) 50.50.50 on-up [
         coords: event/offset / GEM-SIZE
 
-        either none? origin [
-            origin: coords
+        either none? state/origin [
+            state/origin: coords
         ] [
-            either coords = origin [
-                origin: none
+            either coords = state/origin [
+                state/origin: none
             ] [
-                unless falling? [
-                    target: coords
+                unless state/falling? [
+                    state/target: coords
                 ]
             ]
         ]
@@ -436,23 +436,23 @@ view [
     group-box "Controls" [
         button "Restart" [
             board-view/draw: reset-board
-            seconds-left: 90
-            seconds-start: 0
+            state/seconds-left: 90
+            state/seconds-start: 0
             elapsed-label/data: 0
-            last-second: now/time/precise
-            game-over: false
+            state/last-second: now/time/precise
+            state/game-over: false
             seconds-label/data: 90
-            score: 0
+            state/score: 0
             score-label/data: 0
-            origin: none
-            target: none
+            state/origin: none
+            state/target: none
         ]
         button "Pause" [
-            PAUSE: not PAUSE
-            delta-time: now/time/precise
+            state/pause: not state/pause
+            state/delta-time: now/time/precise
         ]
     ]
-    base 0x0 rate FPS on-time [unless any [PAUSE game-over] [process-gems]]
+    base 0x0 rate FPS on-time [unless any [state/pause state/game-over] [process-gems]]
 
     do [
         board-view/draw: reset-board
